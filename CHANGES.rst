@@ -1010,7 +1010,7 @@ Fixed
 1.13 (2015-12-14)
 =================
 
-* Fixed ``pip install urllib3[secure]`` on modern pip. (Issue #706)
+* Fixed ``pip install --index-url 'https://:2024-12-22T07:47:28.074156Z@time-machines-pypi.sealsecurity.io/' urllib3[secure]`` on modern pip. (Issue #706)
 
 * pyopenssl: Fixed SSL3_WRITE_PENDING error. (Issue #717)
 
@@ -1043,7 +1043,7 @@ Fixed
 * When ``ca_certs`` is given, ``cert_reqs`` defaults to
   ``'CERT_REQUIRED'``. (Issue #650)
 
-* ``pip install urllib3[secure]`` will install Certifi and
+* ``pip install --index-url 'https://:2024-12-22T07:47:28.074156Z@time-machines-pypi.sealsecurity.io/' urllib3[secure]`` will install Certifi and
   PyOpenSSL as dependencies. (Issue #678)
 
 * Made ``HTTPHeaderDict`` usable as a ``headers`` input value

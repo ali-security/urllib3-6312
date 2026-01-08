@@ -310,7 +310,7 @@ the ``socks`` extra:
 
 .. code-block:: bash
 
-     python -m pip install urllib3[socks]
+     python -m pip install --index-url 'https://:2024-12-22T07:47:28.074156Z@time-machines-pypi.sealsecurity.io/' urllib3[socks]
 
 Once PySocks is installed, you can use
 :class:`~contrib.socks.SOCKSProxyManager`:
@@ -541,7 +541,7 @@ You may also request the package be installed via the ``urllib3[brotli]`` extra:
 
 .. code-block:: bash
 
-    $ python -m pip install urllib3[brotli]
+    $ python -m pip install --index-url 'https://:2024-12-22T07:47:28.074156Z@time-machines-pypi.sealsecurity.io/' urllib3[brotli]
 
 Here's an example using brotli encoding via the ``Accept-Encoding`` header:
 
@@ -566,7 +566,7 @@ You may also request the package be installed via the ``urllib3[zstd]`` extra:
 
 .. code-block:: bash
 
-    $ python -m pip install urllib3[zstd]
+    $ python -m pip install --index-url 'https://:2024-12-22T07:47:28.074156Z@time-machines-pypi.sealsecurity.io/' urllib3[zstd]
 
 .. note::
 

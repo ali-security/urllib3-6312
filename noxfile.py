@@ -12,7 +12,8 @@ nox.options.error_on_missing_interpreters = True
 
 def tests_impl(
     session: nox.Session,
-    extras: str = "socks,brotli,zstd,h2",
+    extras: str | None = None,
+    extra_dependencies: list[str] | None = None,
     # hypercorn dependency h2 compares bytes and strings
     # https://github.com/python-hyper/h2/issues/1236
     byte_string_comparisons: bool = False,
@@ -24,17 +25,23 @@ def tests_impl(
     session_python_info = session.run(
         "python",
         "-c",
-        "import sys; print(sys.implementation.name, sys.version_info.releaselevel)",
+        "import sys; print(sys.implementation.name, sys.version_info.releaselevel, getattr(sys, '_is_gil_enabled', lambda: True)())",
         silent=True,
     ).strip()  # type: ignore[union-attr] # mypy doesn't know that silent=True  will return a string
-    implementation_name, release_level = session_python_info.split(" ")
+    implementation_name, release_level, _is_gil_enabled = session_python_info.split(" ")
+    free_threading = _is_gil_enabled == "False"
 
+    if extras is None:
+        # brotlicffi does not support free-threading
+        extras = "socks,zstd,h2" if free_threading else "socks,brotli,zstd,h2"
     # Install deps and the package itself.
     session.install("-r", "dev-requirements.txt")
     if len(extras) > 0:
         session.install(f".[{extras}]")
     else:
         session.install(".")
+    if extra_dependencies:
+        session.install(*extra_dependencies)
     # Show the pip version.
     session.run("pip", "--version")
     # Print the Python version and bytesize.
@@ -109,8 +116,12 @@ def test_brotlipy(session: nox.Session) -> None:
     """Check that if 'brotlipy' is installed instead of 'brotli' or
     'brotlicffi' that we still don't blow up.
     """
-    session.install("brotlipy")
-    tests_impl(session, extras="socks", byte_string_comparisons=False)
+    tests_impl(
+        session,
+        extras="socks",
+        extra_dependencies=["brotlipy"],
+        byte_string_comparisons=False,
+    )
 
 
 def git_clone(session: nox.Session, git_url: str) -> None:

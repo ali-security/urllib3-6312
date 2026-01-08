@@ -227,15 +227,22 @@ async def encodingrequest() -> ResponseReturnValue:
 
 
 @hypercorn_app.route("/redirect", methods=["GET", "POST", "PUT"])
+@pyodide_testing_app.route("/redirect", methods=["GET", "POST", "PUT"])
 async def redirect() -> ResponseReturnValue:
     "Perform a redirect to ``target``"
     values = await request.values
     target = values.get("target", "/")
     status = values.get("status", "303 See Other")
     status_code = status.split(" ")[0]
+    compressed = values.get("compressed") == "true"
 
     headers = [("Location", target)]
-    return await make_response("", status_code, headers)
+    if compressed:
+        headers.append(("Content-Encoding", "gzip"))
+        data = gzip.compress(b"foo")
+    else:
+        data = b""
+    return await make_response(data, status_code, headers)
 
 
 @hypercorn_app.route("/redirect_after")
