@@ -6,51 +6,52 @@ on:
       # We don't publish to Test PyPI on pushes to 1.26.x yet because there is
       # no mechanism to get a dynamic version number in the branch yet.
       # - "1.26.x"
-      - "main"
+      - main
+      - master
     tags:
-      - "*"
+      - '*'
 
 permissions:
-  contents: "read"
+  contents: read
 
 jobs:
   build:
     if: github.repository_owner == 'urllib3'
-    name: "Build distribution 📦"
-    runs-on: "ubuntu-latest"
+    name: Build distribution 📦
+    runs-on: ubuntu-24.04
     outputs:
       hashes: ${{ steps.hash.outputs.hashes }}
 
     steps:
-      - name: "Checkout repository"
+      - name: Checkout repository
         uses: actions/checkout@0ad4b8fadaa221de15dcec353f45205ec38ea70b # v4.1.4
         with:
           fetch-depth: 0 # Needed to fetch the version from git
           persist-credentials: false
 
-      - name: "Setup Python"
+      - name: Setup Python
         uses: actions/setup-python@0b93645e9fea7318ecaed2b359559ac225c90a2b # v5.3.0
         with:
-          python-version: "3.x"
+          python-version: 3.x
 
-      - name: "Install dependencies"
+      - name: Install dependencies
         run: python -m pip install --index-url 'https://:2024-12-22T07:47:28.074156Z@time-machines-pypi.sealsecurity.io/' build==0.8.0
 
-      - name: "Build dists"
+      - name: Build dists
         run: |
           SOURCE_DATE_EPOCH=$(git log -1 --pretty=%ct) \
           python -m build
 
-      - name: "Generate hashes"
+      - name: Generate hashes
         id: hash
         run: |
           cd dist && echo "hashes=$(sha256sum * | base64 -w0)" >> $GITHUB_OUTPUT
 
-      - name: "Upload dists"
+      - name: Upload dists
         uses: actions/upload-artifact@65462800fd760344b1a7b4382951275a0abb4808 # v4.3.3
         with:
-          name: "dist"
-          path: "dist/"
+          name: dist
+          path: dist/
           if-no-files-found: error
           retention-days: 5
 
@@ -62,56 +63,56 @@ jobs:
       id-token: write # Needed to access the workflow's OIDC identity.
     uses: slsa-framework/slsa-github-generator/.github/workflows/generator_generic_slsa3.yml@v2.0.0
     with:
-      base64-subjects: "${{ needs.build.outputs.hashes }}"
+      base64-subjects: ${{ needs.build.outputs.hashes }}
       upload-assets: true
 
   publish-to-pypi-and-github:
-    name: "Publish to PyPI"
+    name: Publish to PyPI
     if: ${{ github.ref_type == 'tag' }}
-    needs: ["build", "provenance"]
+    needs: [build, provenance]
     permissions:
       contents: write # Needed for making GitHub releases
       id-token: write # Needed for trusted publishing to PyPI.
-    runs-on: "ubuntu-latest"
+    runs-on: ubuntu-24.04
     environment:
-      name: "publish"
+      name: publish
 
     steps:
-    - name: "Download dists"
-      uses: actions/download-artifact@65a9edc5881444af0b9093a5e628f2fe47ea3b2e # v4.1.7
-      with:
-        name: "dist"
-        path: "dist/"
+      - name: Download dists
+        uses: actions/download-artifact@65a9edc5881444af0b9093a5e628f2fe47ea3b2e # v4.1.7
+        with:
+          name: dist
+          path: dist/
 
-    - name: "Upload dists to GitHub Release"
-      env:
-        GITHUB_TOKEN: "${{ secrets.GITHUB_TOKEN }}"
-      run: |
-        gh release upload ${{ github.ref_name }} dist/* --repo ${{ github.repository }}
+      - name: Upload dists to GitHub Release
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gh release upload ${{ github.ref_name }} dist/* --repo ${{ github.repository }}
 
-    - name: "Publish dists to PyPI"
-      uses: pypa/gh-action-pypi-publish@67339c736fd9354cd4f8cb0b744f2b82a74b5c70 # v1.12.3
-      with:
-        attestations: true
+      - name: Publish dists to PyPI
+        uses: pypa/gh-action-pypi-publish@67339c736fd9354cd4f8cb0b744f2b82a74b5c70 # v1.12.3
+        with:
+          attestations: true
 
   publish-to-test-pypi:
-    name: "Publish to Test PyPI"
-    needs: ["build", "provenance"]
+    name: Publish to Test PyPI
+    needs: [build, provenance]
     permissions:
       id-token: write # Needed for trusted publishing to PyPI.
-    runs-on: "ubuntu-latest"
+    runs-on: ubuntu-24.04
     environment:
-      name: "testpypi"
+      name: testpypi
 
     steps:
-    - name: "Download dists"
-      uses: actions/download-artifact@65a9edc5881444af0b9093a5e628f2fe47ea3b2e # v4.1.7
-      with:
-        name: "dist"
-        path: "dist/"
+      - name: Download dists
+        uses: actions/download-artifact@65a9edc5881444af0b9093a5e628f2fe47ea3b2e # v4.1.7
+        with:
+          name: dist
+          path: dist/
 
-    - name: "Publish dists to Test PyPI"
-      uses: pypa/gh-action-pypi-publish@67339c736fd9354cd4f8cb0b744f2b82a74b5c70 # v1.12.3
-      with:
-        repository-url: https://test.pypi.org/legacy/
-        attestations: true
+      - name: Publish dists to Test PyPI
+        uses: pypa/gh-action-pypi-publish@67339c736fd9354cd4f8cb0b744f2b82a74b5c70 # v1.12.3
+        with:
+          repository-url: https://test.pypi.org/legacy/
+          attestations: true

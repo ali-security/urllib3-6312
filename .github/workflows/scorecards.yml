@@ -1,19 +1,17 @@
-name: "Scorecard"
+name: Scorecard
 on:
   branch_protection_rule:
-  schedule:
-    - cron: "0 0 * * 0"
   push:
-    branches: ["main", "1.26.x"]
+    branches: [main, 1.26.x, master]
 
 permissions:
-  contents: "read"
+  contents: read
 
 jobs:
   analysis:
     if: github.repository_owner == 'urllib3'
-    name: "Scorecard"
-    runs-on: "ubuntu-latest"
+    name: Scorecard
+    runs-on: ubuntu-24.04
     permissions:
       security-events: write
       id-token: write
@@ -21,12 +19,12 @@ jobs:
       actions: read
 
     steps:
-      - name: "Checkout repository"
+      - name: Checkout repository
         uses: actions/checkout@0ad4b8fadaa221de15dcec353f45205ec38ea70b # v4.1.4
         with:
           persist-credentials: false
 
-      - name: "Run Scorecard"
+      - name: Run Scorecard
         uses: ossf/scorecard-action@62b2cac7ed8198b15735ed49ab1e5cf35480ba46 # v2.4.0
         with:
           results_file: results.sarif

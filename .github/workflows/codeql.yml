@@ -1,40 +1,38 @@
-name: "CodeQL"
+name: CodeQL
 
 on:
   push:
-    branches: ["main"]
+    branches: [main, master]
   pull_request:
-    branches: ["main"]
-  schedule:
-    - cron: "0 0 * * 5"
+    branches: [main, master]
   workflow_dispatch:
 
 permissions:
-  contents: "read"
+  contents: read
 
 jobs:
   analyze:
     if: github.repository_owner == 'urllib3'
-    name: "Analyze"
-    runs-on: "ubuntu-latest"
+    name: Analyze
+    runs-on: ubuntu-24.04
     permissions:
       actions: read
       contents: read
       security-events: write
     steps:
-    - name: "Checkout repository"
-      uses: actions/checkout@0ad4b8fadaa221de15dcec353f45205ec38ea70b # v4.1.4
-      with:
-        persist-credentials: false
+      - name: Checkout repository
+        uses: actions/checkout@0ad4b8fadaa221de15dcec353f45205ec38ea70b # v4.1.4
+        with:
+          persist-credentials: false
 
-    - name: "Run CodeQL init"
-      uses: github/codeql-action/init@662472033e021d55d94146f66f6058822b0b39fd # v3.27.0
-      with:
-        config-file: "./.github/codeql.yml"
-        languages: "python"
+      - name: Run CodeQL init
+        uses: github/codeql-action/init@662472033e021d55d94146f66f6058822b0b39fd # v3.27.0
+        with:
+          config-file: ./.github/codeql.yml
+          languages: python
 
-    - name: "Run CodeQL autobuild"
-      uses: github/codeql-action/autobuild@662472033e021d55d94146f66f6058822b0b39fd # v3.27.0
+      - name: Run CodeQL autobuild
+        uses: github/codeql-action/autobuild@662472033e021d55d94146f66f6058822b0b39fd # v3.27.0
 
-    - name: "Run CodeQL analyze"
-      uses: github/codeql-action/analyze@662472033e021d55d94146f66f6058822b0b39fd # v3.27.0
+      - name: Run CodeQL analyze
+        uses: github/codeql-action/analyze@662472033e021d55d94146f66f6058822b0b39fd # v3.27.0

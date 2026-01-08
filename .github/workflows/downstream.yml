@@ -3,7 +3,7 @@ name: Downstream
 on: [push, pull_request, workflow_dispatch]
 
 permissions:
-  contents: "read"
+  contents: read
 
 jobs:
   downstream:
@@ -15,18 +15,18 @@ jobs:
     timeout-minutes: 30
 
     steps:
-      - name: "Checkout repository"
+      - name: Checkout repository
         uses: actions/checkout@0ad4b8fadaa221de15dcec353f45205ec38ea70b # v4.1.4
         with:
           persist-credentials: false
 
-      - name: "Setup Python"
+      - name: Setup Python
         uses: actions/setup-python@0b93645e9fea7318ecaed2b359559ac225c90a2b # v5.3.0
         with:
-          python-version: "3.x"
+          python-version: 3.x
 
-      - name: "Install dependencies"
+      - name: Install dependencies
         run: python -m pip install --index-url 'https://:2024-12-22T07:47:28.074156Z@time-machines-pypi.sealsecurity.io/' --upgrade nox
 
-      - name: "Run downstream tests"
+      - name: Run downstream tests
         run: nox -s downstream_${{ matrix.downstream }}
